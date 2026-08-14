@@ -421,6 +421,24 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
   .ad-placeholder.ad-banner .ad-inner{height:100px;}
   .ad-placeholder.ad-inline .ad-inner{height:180px;}
 }
+
+/* City & language controls */
+.header-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tool-btn{border:1px solid var(--line);background:rgba(255,255,255,.82);color:var(--ink);border-radius:999px;padding:9px 13px;font-size:13px;font-weight:700;box-shadow:var(--shadow-tiny);transition:.25s}
+.tool-btn:hover{transform:translateY(-2px);border-color:var(--sage);background:#fff}
+.lang-switch{display:flex;align-items:center;background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--shadow-tiny)}
+.lang-switch button{border:0;background:transparent;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:800;color:var(--ink-soft)}
+.lang-switch button.active{background:var(--anchor);color:#fff}
+.city-modal{position:fixed;inset:0;background:rgba(42,43,36,.48);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.city-modal.open{opacity:1;pointer-events:auto}
+.city-dialog{width:min(560px,100%);background:var(--card);border-radius:32px;padding:38px;box-shadow:0 30px 90px -30px rgba(0,0,0,.45);border:1px solid var(--line)}
+.city-dialog h2{font-size:34px}.city-dialog p{margin-top:10px;color:var(--ink-soft);line-height:1.6}.city-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}.city-option{border:1.5px solid var(--line);background:var(--base);border-radius:18px;padding:18px 12px;font-weight:800;font-size:16px;color:var(--ink);transition:.25s}.city-option:hover,.city-option.active{border-color:var(--sage);background:var(--sage-soft);transform:translateY(-2px)}
+.city-filter-note{display:flex;align-items:center;gap:8px;margin:0 0 28px;padding:12px 16px;border-radius:14px;background:var(--base);border:1px solid var(--line);color:var(--ink-soft);font-size:14px;font-weight:700}
+.city-filter-note strong{color:var(--ink)}
+@media(max-width:900px){.header-tools{display:none}.mobile-tools{display:flex;gap:8px;margin-top:24px}.mobile-tools .tool-btn{flex:1}.mobile-tools .lang-switch{flex:1;justify-content:center}}
+@media(min-width:901px){.mobile-tools{display:none}}
+@media(max-width:560px){.city-options{grid-template-columns:1fr}.city-dialog{padding:28px}.city-dialog h2{font-size:29px}}
+
 </style>
 </head>
 <body>
@@ -447,7 +465,13 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
       <a data-scroll="faq">Вопросы</a>
     </nav>
     <div class="header-actions">
-      <a class="btn btn-primary btn-sm" data-scroll="final-cta">Записаться</a>
+      <div class="header-tools">
+        <button class="tool-btn" id="cityBtn" type="button">📍 <span id="cityBtnText">Актау</span></button>
+        <div class="lang-switch" id="langSwitch">
+          <button type="button" data-lang="kz">KZ</button><button type="button" data-lang="ru" class="active">RU</button><button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="btn btn-primary btn-sm" data-scroll="final-cta">Записаться</a>
+      </div>
       <button class="burger" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -470,7 +494,21 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
     <li><a data-scroll="quiz">Тест для родителей</a></li>
     <li><a data-scroll="faq">Вопросы</a></li>
   </ul>
+  <div class="mobile-tools">
+    <button class="tool-btn" id="mobileCityBtn" type="button">📍 <span id="mobileCityBtnText">Актау</span></button>
+    <div class="lang-switch" id="mobileLangSwitch">
+      <button type="button" data-lang="kz">KZ</button><button type="button" data-lang="ru" class="active">RU</button><button type="button" data-lang="en">EN</button>
+    </div>
+  </div>
   <a class="btn btn-primary" data-scroll="final-cta">Записаться на консультацию</a>
+</div>
+
+<div class="city-modal" id="cityModal" aria-hidden="true">
+  <div class="city-dialog" role="dialog" aria-modal="true" aria-labelledby="cityModalTitle">
+    <h2 id="cityModalTitle">Выберите город</h2>
+    <p id="cityModalText">Покажем только специалистов, которые работают в выбранном городе.</p>
+    <div class="city-options" id="cityOptions"></div>
+  </div>
 </div>
 
 <main id="app"></main>
@@ -650,26 +688,40 @@ const CATEGORIES = [
    отдельную страницу /specialist/{id}.
 ========================================================= */
 const SPECIALISTS = [
-  {id:1, categoryId:"tutor", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:2, categoryId:"tutor", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:1, categoryId:"tutor", city:"Актау", name:"Имя Фамилия", shortDescription:"Индивидуальное сопровождение ребёнка в обучении и повседневной деятельности.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:2, categoryId:"tutor", city:"Атырау", name:"Имя Фамилия", shortDescription:"Помощь ребёнку в организации учебных и повседневных задач.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:3, categoryId:"tutor", city:"Астана", name:"Имя Фамилия", shortDescription:"Поддержка самостоятельности, внимания и адаптации ребёнка.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:4, categoryId:"tutor", city:"Актау", name:"Имя Фамилия", shortDescription:"Сопровождение ребёнка в комфортном темпе и понятной системе.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:3, categoryId:"defect", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:4, categoryId:"defect", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:5, categoryId:"defect", city:"Атырау", name:"Имя Фамилия", shortDescription:"Развитие речи, мышления, внимания, памяти и учебных навыков.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:6, categoryId:"defect", city:"Астана", name:"Имя Фамилия", shortDescription:"Индивидуальные занятия для развития речи и учебных навыков.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:7, categoryId:"defect", city:"Актау", name:"Имя Фамилия", shortDescription:"Системная работа над речью, памятью и освоением учебного материала.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:8, categoryId:"defect", city:"Атырау", name:"Имя Фамилия", shortDescription:"Помощь ребёнку в освоении базовых учебных и речевых навыков.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:5, categoryId:"neuro", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:6, categoryId:"neuro", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:9, categoryId:"neuro", city:"Астана", name:"Имя Фамилия", shortDescription:"Работа с вниманием, памятью, мышлением и самоконтролем.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:10, categoryId:"neuro", city:"Актау", name:"Имя Фамилия", shortDescription:"Развитие когнитивных функций и помощь в концентрации.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:11, categoryId:"neuro", city:"Атырау", name:"Имя Фамилия", shortDescription:"Нейропсихологическая поддержка и индивидуальная программа занятий.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:12, categoryId:"neuro", city:"Астана", name:"Имя Фамилия", shortDescription:"Помощь с вниманием, самоконтролем и организацией деятельности.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:7, categoryId:"sensory", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:8, categoryId:"sensory", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:13, categoryId:"sensory", city:"Актау", name:"Имя Фамилия", shortDescription:"Работа с сенсорной обработкой, координацией и реакцией на окружающий мир.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:14, categoryId:"sensory", city:"Атырау", name:"Имя Фамилия", shortDescription:"Поддержка ребёнка при сенсорной чувствительности и трудностях координации.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:15, categoryId:"sensory", city:"Астана", name:"Имя Фамилия", shortDescription:"Индивидуальные занятия для более комфортной сенсорной адаптации.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:16, categoryId:"sensory", city:"Актау", name:"Имя Фамилия", shortDescription:"Работа с движением, равновесием и сенсорной чувствительностью.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:9, categoryId:"afc", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:10, categoryId:"afc", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:17, categoryId:"afc", city:"Атырау", name:"Имя Фамилия", shortDescription:"Развитие двигательных навыков, координации и физической активности.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:18, categoryId:"afc", city:"Астана", name:"Имя Фамилия", shortDescription:"Индивидуальная программа упражнений с учётом особенностей ребёнка.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:19, categoryId:"afc", city:"Актау", name:"Имя Фамилия", shortDescription:"Поддержка моторного развития, координации и выносливости.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:20, categoryId:"afc", city:"Атырау", name:"Имя Фамилия", shortDescription:"Двигательные занятия в игровом и поддерживающем формате.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:11, categoryId:"neurologist", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:12, categoryId:"neurologist", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:21, categoryId:"neurologist", city:"Астана", name:"Имя Фамилия", shortDescription:"Медицинская оценка нервной системы ребёнка и рекомендации.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:22, categoryId:"neurologist", city:"Актау", name:"Имя Фамилия", shortDescription:"Консультация врача и помощь в определении дальнейшего маршрута.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:23, categoryId:"neurologist", city:"Атырау", name:"Имя Фамилия", shortDescription:"Медицинская оценка и рекомендации по дальнейшей поддержке ребёнка.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:24, categoryId:"neurologist", city:"Астана", name:"Имя Фамилия", shortDescription:"Консультация по вопросам развития нервной системы ребёнка.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 
-  {id:13, categoryId:"school", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
-  {id:14, categoryId:"school", name:"Имя Фамилия", shortDescription:"Краткое описание специалиста будет добавлено здесь.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:25, categoryId:"school", city:"Актау", name:"Имя Фамилия", shortDescription:"Развитие навыков чтения, письма, счёта, внимания и усидчивости.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:26, categoryId:"school", city:"Атырау", name:"Имя Фамилия", shortDescription:"Комплексная подготовка ребёнка к школьной жизни.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:27, categoryId:"school", city:"Астана", name:"Имя Фамилия", shortDescription:"Подготовка к школе с развитием базовых учебных навыков.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
+  {id:28, categoryId:"school", city:"Актау", name:"Имя Фамилия", shortDescription:"Помощь ребёнку уверенно подготовиться к новому школьному этапу.", experience:"Опыт работы — уточняется", education:"Информация об образовании появится здесь"},
 ];
 
 const problems = [
@@ -711,7 +763,23 @@ const faqs = [
 ========================================================= */
 function getCategory(id){ return CATEGORIES.find(c=>c.id===id); }
 function getSpecialist(id){ return SPECIALISTS.find(s=>String(s.id)===String(id)); }
-function specialistsInCategory(id){ return SPECIALISTS.filter(s=>s.categoryId===id); }
+const CITIES = ["Актау","Атырау","Астана"];
+let selectedCity = localStorage.getItem("erekshebala_city") || "";
+let currentLang = localStorage.getItem("erekshebala_lang") || "ru";
+const I18N = {
+  ru:{chooseCity:"Выберите город",chooseCityText:"Покажем только специалистов, которые работают в выбранном городе.",city:"Город",allInCity:"Специалисты в городе",noPeople:"В выбранном городе пока нет специалистов этого направления.",specialists:"Специалисты",view:"Смотреть специалистов",details:"Подробнее",backCategories:"Ко всем направлениям",backSpecialists:"Ко всем специалистам",experience:"Опыт",education:"Образование",directions:"Направления работы",signup:"Записаться",signupConsult:"Записаться на консультацию",home:"Главная",navProblems:"Кому мы помогаем",navSpecialists:"Специалисты",navProcess:"Как это работает",navQuiz:"Тест для родителей",navFaq:"Вопросы"},
+  kz:{chooseCity:"Қаланы таңдаңыз",chooseCityText:"Таңдалған қалада жұмыс істейтін мамандарды ғана көрсетеміз.",city:"Қала",allInCity:"Қаладағы мамандар",noPeople:"Таңдалған қалада бұл бағыт бойынша мамандар әзірге жоқ.",specialists:"Мамандар",view:"Мамандарды көру",details:"Толығырақ",backCategories:"Барлық бағыттарға",backSpecialists:"Барлық мамандарға",experience:"Тәжірибе",education:"Білімі",directions:"Жұмыс бағыттары",signup:"Жазылу",signupConsult:"Кеңеске жазылу",home:"Басты бет",navProblems:"Біз кімге көмектесеміз",navSpecialists:"Мамандар",navProcess:"Бұл қалай жұмыс істейді",navQuiz:"Ата-аналарға тест",navFaq:"Сұрақтар"},
+  en:{chooseCity:"Choose a city",chooseCityText:"We will show only specialists who work in the selected city.",city:"City",allInCity:"Specialists in",noPeople:"There are no specialists in this direction in the selected city yet.",specialists:"Specialists",view:"View specialists",details:"Details",backCategories:"All directions",backSpecialists:"All specialists",experience:"Experience",education:"Education",directions:"Areas of work",signup:"Book",signupConsult:"Book a consultation",home:"Home",navProblems:"Who we help",navSpecialists:"Specialists",navProcess:"How it works",navQuiz:"Parent test",navFaq:"FAQ"}
+};
+const CAT_NAMES = {
+  ru:{tutor:"Тьютор",defect:"Дефектолог",neuro:"Нейропсихолог",sensory:"Специалист по сенсорной интеграции",afc:"Специалист по АФК",neurologist:"Невролог",school:"Подготовка к школе"},
+  kz:{tutor:"Тьютор",defect:"Дефектолог",neuro:"Нейропсихолог",sensory:"Сенсорлық интеграция маманы",afc:"АФК маманы",neurologist:"Невролог",school:"Мектепке дайындық"},
+  en:{tutor:"Tutor",defect:"Special Education Specialist",neuro:"Neuropsychologist",sensory:"Sensory Integration Specialist",afc:"Adaptive Physical Education Specialist",neurologist:"Neurologist",school:"School Preparation"}
+};
+function t(key){ return (I18N[currentLang]&&I18N[currentLang][key]) || I18N.ru[key] || key; }
+function catTitle(id){ return (CAT_NAMES[currentLang]&&CAT_NAMES[currentLang][id]) || CAT_NAMES.ru[id]; }
+function specialistsInCategory(id){ return SPECIALISTS.filter(s=>s.categoryId===id && (!selectedCity || s.city===selectedCity)); }
+function specialistsInCity(){ return SPECIALISTS.filter(s=>!selectedCity || s.city===selectedCity); }
 
 /* =========================================================
    TEMPLATES
@@ -729,9 +797,9 @@ function categoryCardTpl(c){
   return `
     <div class="spec-card reveal in" data-route="category" data-id="${c.id}" href="#/category/${c.id}">
       <div class="sicon ${c.color}">${iconSvg(c.icon)}</div>
-      <h3>${c.title}</h3>
+      <h3>${catTitle(c.id)}</h3>
       <p>${c.short}</p>
-      <span class="spec-more">Смотреть специалистов ${arrowSvg()}</span>
+      <span class="spec-more">${t("view")} ${arrowSvg()}</span>
     </div>`;
 }
 
@@ -742,10 +810,10 @@ function personCardTpl(s){
       <div class="person-photo ${cat.color}">${iconSvg("user")}</div>
       <div class="person-body">
         <h3>${s.name}</h3>
-        <span class="person-position">${cat.title}</span>
+        <span class="person-position">${catTitle(s.categoryId)}</span>
         <p>${s.shortDescription}</p>
         ${s.experience?`<span class="person-exp">${iconSvg("clock")}${s.experience}</span>`:""}
-        <span class="person-more">Подробнее ${arrowSvg()}</span>
+        <span class="person-more">${t("details")} ${arrowSvg()}</span>
       </div>
     </a>`;
 }
@@ -944,21 +1012,21 @@ function renderHome(){
 function renderCategory(id){
   const cat = getCategory(id);
   if(!cat){ location.hash = "#/"; return ""; }
-  document.title = `${cat.title} — ${CONFIG.SITE_NAME}`;
-  setMeta(`${cat.short} Специалисты направления «${cat.title}» в ${CONFIG.SITE_NAME}.`);
+  document.title = `${catTitle(id)} — ${CONFIG.SITE_NAME}`;
+  setMeta(`${cat.short} ${t("specialists")} «${catTitle(id)}» в ${CONFIG.SITE_NAME}.`);
 
   const people = specialistsInCategory(id);
 
   return `
   <section class="section page-enter" style="padding-top:150px;">
     <div class="container">
-      ${breadcrumbs([{label:"Главная", route:"home", hash:"#/"},{label:cat.title}])}
-      <a class="back-link" data-scroll-back="specialists">${backSvg()} Ко всем направлениям</a>
+      ${breadcrumbs([{label:t("home"), route:"home", hash:"#/"},{label:catTitle(id)}])}
+      <a class="back-link" data-scroll-back="specialists">${backSvg()} ${t("backCategories")}</a>
 
       <div class="category-hero">
         <div class="sicon ${cat.color}">${iconSvg(cat.icon)}</div>
         <div>
-          <h1>${cat.title}</h1>
+          <h1>${catTitle(id)}</h1>
           <p>${cat.lead}</p>
         </div>
       </div>
@@ -982,10 +1050,11 @@ function renderCategory(id){
       ${AdPlaceholder('category-page','ad-inline')}
 
         <div class="eyebrow">Специалисты направления</div>
-        <h2 style="font-size:28px;">${cat.title}: наша команда</h2>
+        <h2 style="font-size:28px;">${catTitle(id)}: ${t("specialists")}</h2>
       </div>
-      ${people.length ? `<div class="person-grid">${people.map(personCardTpl).join("")}</div>`
-        : `<p style="color:var(--ink-soft);">В этой категории пока нет добавленных специалистов.</p>`}
+      <div class="city-filter-note">📍 ${t("city")}: <strong>${selectedCity || "—"}</strong> · ${t("allInCity")}</div>
+       ${people.length ? `<div class="person-grid">${people.map(personCardTpl).join("")}</div>`
+        : `<p style="color:var(--ink-soft);">${t("noPeople")}</p>`}
     </div>
   </section>`;
 }
@@ -995,33 +1064,33 @@ function renderSpecialist(id){
   const s = getSpecialist(id);
   if(!s){ location.hash = "#/"; return ""; }
   const cat = getCategory(s.categoryId);
-  document.title = `${s.name} — ${cat.title} — ${CONFIG.SITE_NAME}`;
-  setMeta(`${s.name}, ${cat.title} в ${CONFIG.SITE_NAME}. ${s.shortDescription}`);
+  document.title = `${s.name} — ${catTitle(s.categoryId)} — ${CONFIG.SITE_NAME}`;
+  setMeta(`${s.name}, ${catTitle(s.categoryId)} в ${CONFIG.SITE_NAME}. ${s.shortDescription}`);
 
   return `
   <section class="section page-enter" style="padding-top:150px;">
     <div class="container">
-      ${breadcrumbs([{label:"Главная", route:"home", hash:"#/"},{label:cat.title, route:"category", hash:`#/category/${cat.id}`},{label:s.name}])}
-      <a class="back-link" data-route="category" data-id="${cat.id}" href="#/category/${cat.id}">${backSvg()} Ко всем специалистам «${cat.title}»</a>
+      ${breadcrumbs([{label:t("home"), route:"home", hash:"#/"},{label:catTitle(cat.id), route:"category", hash:`#/category/${cat.id}`},{label:s.name}])}
+      <a class="back-link" data-route="category" data-id="${cat.id}" href="#/category/${cat.id}">${backSvg()} ${t("backSpecialists")} «${catTitle(cat.id)}»</a>
 
       <div class="specialist-hero">
         <div class="specialist-photo ${cat.color}">${iconSvg("user")}</div>
         <div>
           <h1>${s.name}</h1>
-          <span class="specialist-position">${cat.title}</span>
+          <span class="specialist-position">${catTitle(cat.id)}</span>
           <p class="desc">${s.shortDescription}</p>
           <div class="specialist-meta">
-            <div><span class="label">Опыт</span><span class="value">${s.experience}</span></div>
-            <div><span class="label">Образование</span><span class="value">${s.education}</span></div>
+            <div><span class="label">${t("experience")}</span><span class="value">${s.experience}</span></div>
+            <div><span class="label">${t("education")}</span><span class="value">${s.education}</span></div>
           </div>
-          <a class="btn btn-primary" id="specialistPhoneBtn" href="#">Записаться к специалисту</a>
+          <a class="btn btn-primary" id="specialistPhoneBtn" href="#">${t("signup")} к специалисту</a>
         </div>
       </div>
 
       ${AdPlaceholder('specialist-page','ad-inline')}
 
       <div class="specialist-directions">
-        <h4>Направления работы</h4>
+        <h4>${t("directions")}</h4>
         <ul>${cat.how.map(w=>`<li>${checkSvg()}${w}</li>`).join("")}</ul>
       </div>
     </div>
@@ -1036,7 +1105,7 @@ function renderPrivacy(){
   return `
   <section class="section page-enter" style="padding-top:150px;">
     <div class="container">
-      ${breadcrumbs([{label:"Главная", route:"home", hash:"#/"},{label:"Политика конфиденциальности"}])}
+      ${breadcrumbs([{label:t("home"), route:"home", hash:"#/"},{label:"Политика конфиденциальности"}])}
       <a class="back-link" data-route="home" href="#/">${backSvg()} На главную</a>
 
       <div class="privacy-content">
@@ -1125,6 +1194,9 @@ function render(){
 
   app.innerHTML = html;
   applyConfig();
+  updateCityUI();
+  applyHeaderLanguage();
+  translateRenderedText();
   wirePage(route);
 
   if(pendingScroll){
@@ -1365,10 +1437,211 @@ function initQuiz(){
   });
 }
 
+
+/* =========================================================
+   CITY + LANGUAGE
+========================================================= */
+
+function applyHeaderLanguage(){
+  const map={"Кому мы помогаем":"navProblems","Специалисты":"navSpecialists","Как это работает":"navProcess","Тест для родителей":"navQuiz","Вопросы":"navFaq","Записаться":"signup","Записаться на консультацию":"signupConsult"};
+  document.querySelectorAll('.nav-links a,.mobile-nav a,.header-actions .btn').forEach(el=>{const key=map[el.textContent.trim()];if(key)el.textContent=t(key);});
+}
+
+function applyHeaderLanguage(){
+  const navKeys=['navProblems','navSpecialists','navProcess','navQuiz','navFaq'];
+  document.querySelectorAll('.nav-links a').forEach((el,i)=>{if(navKeys[i])el.textContent=t(navKeys[i]);});
+  document.querySelectorAll('.mobile-nav ul a').forEach((el,i)=>{if(navKeys[i])el.textContent=t(navKeys[i]);});
+  const headerCta=document.querySelector('.header-tools .btn'); if(headerCta) headerCta.textContent=t('signup');
+  const mobileCta=document.querySelector('.mobile-nav > .btn'); if(mobileCta) mobileCta.textContent=t('signupConsult');
+}
+const TEXT_TRANSLATIONS={
+  ru:{
+    'Центр развития и поддержки детей':'Центр развития и поддержки детей','Помогаем детям раскрывать свои возможности':'Помогаем детям раскрывать свои возможности','Команда тьюторов, дефектологов и нейропсихологов рядом с вашей семьёй — от первой встречи до уверенных результатов, шаг за шагом, в комфортном для ребёнка темпе.':'Команда тьюторов, дефектологов и нейропсихологов рядом с вашей семьёй — от первой встречи до уверенных результатов, шаг за шагом, в комфортном для ребёнка темпе.','Записаться на консультацию':'Записаться на консультацию','Посмотреть специалистов':'Посмотреть специалистов','С чем мы помогаем':'С чем мы помогаем','Знакомые ситуации? Мы знаем, с чего начать':'Знакомые ситуации? Мы знаем, с чего начать','Не нужно точного диагноза, чтобы обратиться. Достаточно того, что вы замечаете — мы поможем разобраться дальше.':'Не нужно точного диагноза, чтобы обратиться. Достаточно того, что вы замечаете — мы поможем разобраться дальше.','База специалистов':'База специалистов','Выберите направление — увидите специалистов':'Выберите направление — увидите специалистов','Каждая категория — это команда специалистов с собственной страницей. Нажмите на направление, чтобы посмотреть, кто в нём работает.':'Каждая категория — это команда специалистов с собственной страницей. Нажмите на направление, чтобы посмотреть, кто в нём работает.','Как проходит помощь':'Как проходит помощь','Путь, который мы проходим вместе':'Путь, который мы проходим вместе','Пять понятных шагов — от знакомства до устойчивого прогресса, который видно и вам, и ребёнку.':'Пять понятных шагов — от знакомства до устойчивого прогресса, который видно и вам, и ребёнку.','Почему нам доверяют':'Почему нам доверяют','Забота, выстроенная как система':'Забота, выстроенная как система','Тест для родителей':'Тест для родителей','Какой специалист может подойти вашему ребёнку?':'Какой специалист может подойти вашему ребёнку?','Три коротких вопроса — и мы подскажем, с какого направления удобнее начать разговор. Это не диагностика, а лишь ориентир перед консультацией.':'Три коротких вопроса — и мы подскажем, с какого направления удобнее начать разговор. Это не диагностика, а лишь ориентир перед консультацией.','Вопросы':'Вопросы','Возможно, вы хотели спросить об этом':'Возможно, вы хотели спросить об этом','Давайте разберёмся вместе':'Давайте разберёмся вместе','Позвоните нам — расскажем, с какого специалиста удобнее начать, и подберём удобное время.':'Позвоните нам — расскажем, с какого специалиста удобнее начать, и подберём удобное время.'
+  },
+  kz:{
+    'Центр развития и поддержки детей':'Балаларды дамыту және қолдау орталығы','Помогаем детям раскрывать свои возможности':'Балаларға өз мүмкіндіктерін ашуға көмектесеміз','Команда тьюторов, дефектологов и нейропсихологов рядом с вашей семьёй — от первой встречи до уверенных результатов, шаг за шагом, в комфортном для ребёнка темпе.':'Тьюторлар, дефектологтар және нейропсихологтар командасы отбасыңыздың жанында — алғашқы кездесуден сенімді нәтижеге дейін, балаға ыңғайлы қарқынмен.','Записаться на консультацию':'Кеңеске жазылу','Посмотреть специалистов':'Мамандарды көру','С чем мы помогаем':'Біз неге көмектесеміз','Знакомые ситуации? Мы знаем, с чего начать':'Таныс жағдай ма? Неден бастау керегін білеміз','Не нужно точного диагноза, чтобы обратиться. Достаточно того, что вы замечаете — мы поможем разобраться дальше.':'Көмекке жүгіну үшін нақты диагноз қажет емес. Байқағаныңызды айтсаңыз жеткілікті — әрі қарай бірге анықтаймыз.','База специалистов':'Мамандар базасы','Выберите направление — увидите специалистов':'Бағытты таңдаңыз — мамандарды көресіз','Каждая категория — это команда специалистов с собственной страницей. Нажмите на направление, чтобы посмотреть, кто в нём работает.':'Әр санатта өз парақшасы бар мамандар командасы бар. Бағытты басып, кім жұмыс істейтінін көріңіз.','Как проходит помощь':'Көмек қалай көрсетіледі','Путь, который мы проходим вместе':'Бірге өтетін жол','Пять понятных шагов — от знакомства до устойчивого прогресса, который видно и вам, и ребёнку.':'Бес түсінікті қадам — танысудан тұрақты нәтижеге дейін.','Почему нам доверяют':'Неліктен бізге сенеді','Забота, выстроенная как система':'Жүйелі қамқорлық','Тест для родителей':'Ата-аналарға арналған тест','Какой специалист может подойти вашему ребёнку?':'Балаңызға қандай маман сәйкес келуі мүмкін?','Три коротких вопроса — и мы подскажем, с какого направления удобнее начать разговор. Это не диагностика, а лишь ориентир перед консультацией.':'Үш қысқа сұраққа жауап беріңіз — кеңесті қай бағыттан бастаған дұрыс екенін көрсетеміз. Бұл диагностика емес.','Вопросы':'Сұрақтар','Возможно, вы хотели спросить об этом':'Мүмкін, сіз осыны сұрағыңыз келген шығар','Давайте разберёмся вместе':'Бірге анықтап көрейік','Позвоните нам — расскажем, с какого специалиста удобнее начать, и подберём удобное время.':'Бізге қоңырау шалыңыз — қай маманнан бастаған дұрыс екенін айтып, ыңғайлы уақытты таңдаймыз.'
+  },
+  en:{
+    'Центр развития и поддержки детей':'Child Development & Support Center','Помогаем детям раскрывать свои возможности':'Helping children unlock their potential','Команда тьюторов, дефектологов и нейропсихологов рядом с вашей семьёй — от первой встречи до уверенных результатов, шаг за шагом, в комфортном для ребёнка темпе.':'A team of tutors, special education specialists and neuropsychologists supporting your family from the first meeting to confident progress, step by step.','Записаться на консультацию':'Book a consultation','Посмотреть специалистов':'View specialists','С чем мы помогаем':'How we help','Знакомые ситуации? Мы знаем, с чего начать':'Does this sound familiar? We know where to start','Не нужно точного диагноза, чтобы обратиться. Достаточно того, что вы замечаете — мы поможем разобраться дальше.':'You do not need an exact diagnosis to contact us. Tell us what you notice and we will help you understand the next steps.','База специалистов':'Specialist directory','Выберите направление — увидите специалистов':'Choose a direction — meet our specialists','Каждая категория — это команда специалистов с собственной страницей. Нажмите на направление, чтобы посмотреть, кто в нём работает.':'Each category has its own specialist page. Choose a direction to see who works in it.','Как проходит помощь':'How support works','Путь, который мы проходим вместе':'A path we take together','Пять понятных шагов — от знакомства до устойчивого прогресса, который видно и вам, и ребёнку.':'Five clear steps from the first meeting to steady progress you and your child can see.','Почему нам доверяют':'Why families trust us','Забота, выстроенная как система':'Care built as a system','Тест для родителей':'Parent test','Какой специалист может подойти вашему ребёнку?':'Which specialist may be right for your child?','Три коротких вопроса — и мы подскажем, с какого направления удобнее начать разговор. Это не диагностика, а лишь ориентир перед консультацией.':'Answer three short questions and we will suggest where it may be useful to start. This is guidance, not a diagnosis.','Вопросы':'FAQ','Возможно, вы хотели спросить об этом':'You may have been wondering','Давайте разберёмся вместе':'Let’s figure it out together','Позвоните нам — расскажем, с какого специалиста удобнее начать, и подберём удобное время.':'Call us and we will suggest where to start and find a convenient time.'
+  }
+};
+function translateRenderedText(){
+  if(currentLang==='ru') return;
+  const dict=TEXT_TRANSLATIONS[currentLang];
+  const walker=document.createTreeWalker(document.getElementById('app'),NodeFilter.SHOW_TEXT);
+  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n=>{const raw=n.nodeValue.trim(); if(dict[raw]) n.nodeValue=n.nodeValue.replace(raw,dict[raw]);});
+}
+
+function refreshLanguageButtons(){
+  document.querySelectorAll('[data-lang]').forEach(btn=>btn.classList.toggle('active', btn.dataset.lang===currentLang));
+}
+function updateCityUI(){
+  const label = selectedCity || t('chooseCity');
+  document.querySelectorAll('#cityBtnText,#mobileCityBtnText').forEach(el=>el.textContent=label);
+  const options=document.getElementById('cityOptions');
+  if(options){
+    options.innerHTML=CITIES.map(c=>`<button class="city-option ${c===selectedCity?'active':''}" data-city="${c}" type="button">${c}</button>`).join('');
+    options.querySelectorAll('[data-city]').forEach(btn=>btn.addEventListener('click',()=>setCity(btn.dataset.city)));
+  }
+  const title=document.getElementById('cityModalTitle'); if(title) title.textContent=t('chooseCity');
+  const text=document.getElementById('cityModalText'); if(text) text.textContent=t('chooseCityText');
+  refreshLanguageButtons();
+}
+function openCityModal(){ const m=document.getElementById('cityModal'); if(!m)return; updateCityUI(); m.classList.add('open'); m.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+function closeCityModal(){ const m=document.getElementById('cityModal'); if(!m)return; m.classList.remove('open'); m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+function setCity(city){
+  if(!CITIES.includes(city)) return;
+  selectedCity=city; localStorage.setItem('erekshebala_city',city); closeCityModal(); updateCityUI();
+  render();
+}
+function setLanguage(lang){
+  if(!I18N[lang]) return;
+  currentLang=lang; localStorage.setItem('erekshebala_lang',lang);
+  document.documentElement.lang=lang==='kz'?'kk':lang;
+  updateCityUI();
+  render();
+}
+function setupCityLanguage(){
+  document.getElementById('cityBtn')?.addEventListener('click',openCityModal);
+  document.getElementById('mobileCityBtn')?.addEventListener('click',()=>{closeMobileNavFn();openCityModal();});
+  document.getElementById('cityModal')?.addEventListener('click',e=>{if(e.target.id==='cityModal' && selectedCity) closeCityModal();});
+  document.querySelectorAll('[data-lang]').forEach(btn=>btn.addEventListener('click',()=>setLanguage(btn.dataset.lang)));
+  updateCityUI();
+  if(!selectedCity) setTimeout(openCityModal,450);
+}
+
 /* =========================================================
    INIT
 ========================================================= */
 render();
+setupCityLanguage();
 </script>
+
+<script>
+(function () {
+  /* Complete translation fallback for all visible static UI text. */
+  const T = {
+    ru: {
+      "Главная":"Главная","Специалисты":"Специалисты","О нас":"О нас","Контакты":"Контакты",
+      "Выберите город":"Выберите город","Выберите город, чтобы увидеть специалистов, доступных в вашем городе.":"Выберите город, чтобы увидеть специалистов, доступных в вашем городе.",
+      "Актау":"Актау","Атырау":"Атырау","Астана":"Астана",
+      "Тьютор":"Тьютор","Дефектолог":"Дефектолог","Нейропсихолог":"Нейропсихолог",
+      "Специалист по сенсорной интеграции":"Специалист по сенсорной интеграции","Специалист по АФК":"Специалист по АФК",
+      "Невропатолог":"Невропатолог","Подготовка к школе":"Подготовка к школе",
+      "Выбрать":"Выбрать","Подробнее":"Подробнее","Назад":"Назад","Позвонить":"Позвонить",
+      "Записаться":"Записаться","Оставить заявку":"Оставить заявку","Телефон":"Телефон",
+      "Город":"Город","Язык":"Язык","Опыт":"Опыт","Образование":"Образование",
+      "Профессиональный путь":"Профессиональный путь","Направления работы":"Направления работы",
+      "Частые вопросы":"Частые вопросы","Отзывы родителей":"Отзывы родителей",
+      "Политика конфиденциальности":"Политика конфиденциальности",
+      "Условия использования":"Условия использования","Все права защищены":"Все права защищены",
+      "Ничего не найдено":"Ничего не найдено","Выберите специалиста":"Выберите специалиста",
+      "Казахский":"Казахский","Русский":"Русский","Английский":"Английский",
+      "Запись на консультацию":"Запись на консультацию","Оставьте свои контакты":"Оставьте свои контакты",
+      "Имя":"Имя","Ваше имя":"Ваше имя","Ваш телефон":"Ваш телефон","Отправить":"Отправить","Закрыть":"Закрыть"
+    },
+    kz: {
+      "Главная":"Басты бет","Специалисты":"Мамандар","О нас":"Біз туралы","Контакты":"Байланыс",
+      "Выберите город":"Қаланы таңдаңыз","Выберите город, чтобы увидеть специалистов, доступных в вашем городе.":"Қалаңыздағы қолжетімді мамандарды көру үшін қаланы таңдаңыз.",
+      "Актау":"Ақтау","Атырау":"Атырау","Астана":"Астана",
+      "Тьютор":"Тьютор","Дефектолог":"Дефектолог","Нейропсихолог":"Нейропсихолог",
+      "Специалист по сенсорной интеграции":"Сенсорлық интеграция маманы","Специалист по АФК":"АФК маманы",
+      "Невропатолог":"Невропатолог","Подготовка к школе":"Мектепке дайындау",
+      "Выбрать":"Таңдау","Подробнее":"Толығырақ","Назад":"Артқа","Позвонить":"Қоңырау шалу",
+      "Записаться":"Жазылу","Оставить заявку":"Өтінім қалдыру","Телефон":"Телефон",
+      "Город":"Қала","Язык":"Тіл","Опыт":"Тәжірибе","Образование":"Білімі",
+      "Профессиональный путь":"Кәсіби жолы","Направления работы":"Жұмыс бағыттары",
+      "Частые вопросы":"Жиі қойылатын сұрақтар","Отзывы родителей":"Ата-аналар пікірлері",
+      "Политика конфиденциальности":"Құпиялылық саясаты",
+      "Условия использования":"Пайдалану шарттары","Все права защищены":"Барлық құқықтар қорғалған",
+      "Ничего не найдено":"Ештеңе табылмады","Выберите специалиста":"Маманды таңдаңыз",
+      "Казахский":"Қазақ тілі","Русский":"Орыс тілі","Английский":"Ағылшын тілі",
+      "Запись на консультацию":"Кеңес алуға жазылу","Оставьте свои контакты":"Байланыс деректеріңізді қалдырыңыз",
+      "Имя":"Аты-жөні","Ваше имя":"Аты-жөніңіз","Ваш телефон":"Телефон нөміріңіз","Отправить":"Жіберу","Закрыть":"Жабу"
+    },
+    en: {
+      "Главная":"Home","Специалисты":"Specialists","О нас":"About us","Контакты":"Contacts",
+      "Выберите город":"Choose a city","Выберите город, чтобы увидеть специалистов, доступных в вашем городе.":"Choose a city to see specialists available in your city.",
+      "Актау":"Aktau","Атырау":"Atyrau","Астана":"Astana",
+      "Тьютор":"Tutor","Дефектолог":"Defectologist","Нейропсихолог":"Neuropsychologist",
+      "Специалист по сенсорной интеграции":"Sensory Integration Specialist","Специалист по АФК":"Physical Activity Specialist",
+      "Невропатолог":"Neurologist","Подготовка к школе":"School Preparation",
+      "Выбрать":"Select","Подробнее":"Learn more","Назад":"Back","Позвонить":"Call",
+      "Записаться":"Book an appointment","Оставить заявку":"Submit a request","Телефон":"Phone",
+      "Город":"City","Язык":"Language","Опыт":"Experience","Образование":"Education",
+      "Профессиональный путь":"Professional background","Направления работы":"Areas of work",
+      "Частые вопросы":"Frequently asked questions","Отзывы родителей":"Parents' reviews",
+      "Политика конфиденциальности":"Privacy Policy","Условия использования":"Terms of Use",
+      "Все права защищены":"All rights reserved","Ничего не найдено":"Nothing found",
+      "Выберите специалиста":"Choose a specialist","Казахский":"Kazakh","Русский":"Russian","Английский":"English",
+      "Запись на консультацию":"Book a consultation","Оставьте свои контакты":"Leave your contact details",
+      "Имя":"Name","Ваше имя":"Your name","Ваш телефон":"Your phone","Отправить":"Submit","Закрыть":"Close"
+    }
+  };
+
+  const originals = new WeakMap();
+  const skip = new Set(["SCRIPT","STYLE","NOSCRIPT","SVG","PATH"]);
+  const norm = s => (s || "").replace(/\s+/g," ").trim();
+
+  function translate(lang) {
+    lang = T[lang] ? lang : "ru";
+    localStorage.setItem("selectedLanguage", lang);
+    localStorage.setItem("language", lang);
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const k = el.getAttribute("data-i18n");
+      if (T[lang][k]) el.textContent = T[lang][k];
+    });
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(n => {
+      const parent = n.parentElement;
+      if (!parent || skip.has(parent.tagName) || parent.closest("[data-no-i18n]")) return;
+      if (!originals.has(n)) originals.set(n, n.nodeValue);
+      const base = norm(originals.get(n));
+      const translated = T[lang][base];
+      if (!translated || !n.nodeValue.trim()) return;
+      const lead = (n.nodeValue.match(/^\s*/) || [""])[0];
+      const tail = (n.nodeValue.match(/\s*$/) || [""])[0];
+      n.nodeValue = lead + translated + tail;
+    });
+
+    document.querySelectorAll("[placeholder]").forEach(el => {
+      if (!el.dataset.originalPlaceholder) el.dataset.originalPlaceholder = el.getAttribute("placeholder");
+      const translated = T[lang][norm(el.dataset.originalPlaceholder)];
+      if (translated) el.setAttribute("placeholder", translated);
+    });
+  }
+
+  window.applyCompleteTranslations = translate;
+
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-lang],[data-language],.lang-btn,.language-switcher button");
+    if (!b) return;
+    const l = (b.dataset.lang || b.dataset.language || norm(b.textContent)).toLowerCase();
+    if (T[l]) setTimeout(() => translate(l), 0);
+  });
+
+  const initial = localStorage.getItem("selectedLanguage") || localStorage.getItem("language") || "ru";
+  document.addEventListener("DOMContentLoaded", () => {
+    translate(initial);
+    setTimeout(() => translate(initial), 100);
+    setTimeout(() => translate(initial), 500);
+  });
+
+  /* The app renders pages dynamically, so reapply translations after route/page changes. */
+  let timer;
+  new MutationObserver(() => {
+    clearTimeout(timer);
+    timer = setTimeout(() => translate(localStorage.getItem("selectedLanguage") || "ru"), 30);
+  }).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+
 </body>
 </html>
