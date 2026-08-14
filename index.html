@@ -1643,5 +1643,160 @@ setupCityLanguage();
 })();
 </script>
 
+<script>
+/* =========================================================
+   FULL KEY-BASED LOCALIZATION
+   Every visible text node receives a stable data-i18n-key.
+   Dynamic pages are scanned after every render.
+========================================================= */
+(function(){
+  const RU = {
+    "Центр развития и поддержки детей":"Балаларды дамыту және қолдау орталығы|Child Development & Support Center",
+    "Помогаем детям":"Балаларға көмектесеміз|Helping children",
+    "раскрывать":"өз мүмкіндіктерін ашуға|unlock",
+    "свои возможности":"|their potential",
+    "Команда тьюторов, дефектологов и нейропсихологов рядом с вашей семьёй — от первой встречи до уверенных результатов, шаг за шагом, в комфортном для ребёнка темпе.":"Тьюторлар, дефектологтар және нейропсихологтар командасы отбасыңыздың жанында — алғашқы кездесуден сенімді нәтижеге дейін, балаға ыңғайлы қарқынмен.|A team of tutors, special education specialists and neuropsychologists supporting your family from the first meeting to confident progress, step by step, at a comfortable pace for your child.",
+    "Записаться на консультацию":"Кеңеске жазылу|Book a consultation","Посмотреть специалистов":"Мамандарды көру|View specialists",
+    "С чем мы помогаем":"Біз неге көмектесеміз|How we help","Знакомые ситуации? Мы знаем, с чего начать":"Таныс жағдай ма? Неден бастау керегін білеміз|Does this sound familiar? We know where to start",
+    "Не нужно точного диагноза, чтобы обратиться. Достаточно того, что вы замечаете — мы поможем разобраться дальше.":"Көмекке жүгіну үшін нақты диагноз қажет емес. Байқағаныңызды айтсаңыз жеткілікті — әрі қарай бірге анықтаймыз.|You do not need an exact diagnosis to contact us. Tell us what you notice and we will help you understand the next steps.",
+    "База специалистов":"Мамандар базасы|Specialist directory","Выберите направление — увидите специалистов":"Бағытты таңдаңыз — мамандарды көресіз|Choose a direction — meet our specialists",
+    "Каждая категория — это команда специалистов с собственной страницей. Нажмите на направление, чтобы посмотреть, кто в нём работает.":"Әр санатта өз парақшасы бар мамандар командасы бар. Бағытты басып, кім жұмыс істейтінін көріңіз.|Each category has its own specialist page. Choose a direction to see who works in it.",
+    "Как проходит помощь":"Көмек қалай көрсетіледі|How support works","Путь, который мы проходим вместе":"Бірге өтетін жол|A path we take together","Пять понятных шагов — от знакомства до устойчивого прогресса, который видно и вам, и ребёнку.":"Бес түсінікті қадам — танысудан тұрақты нәтижеге дейін.|Five clear steps from the first meeting to steady progress you and your child can see.",
+    "Почему нам доверяют":"Неліктен бізге сенеді|Why families trust us","Забота, выстроенная как система":"Жүйелі қамқорлық|Care built as a system",
+    "Тест для родителей":"Ата-аналарға арналған тест|Parent test","Какой специалист может подойти вашему ребёнку?":"Балаңызға қандай маман сәйкес келуі мүмкін?|Which specialist may be right for your child?",
+    "Три коротких вопроса — и мы подскажем, с какого направления удобнее начать разговор. Это не диагностика, а лишь ориентир перед консультацией.":"Үш қысқа сұраққа жауап беріңіз — кеңесті қай бағыттан бастаған дұрыс екенін көрсетеміз. Бұл диагностика емес.|Answer three short questions and we will suggest where it may be useful to start. This is guidance, not a diagnosis.",
+    "Вопросы":"Сұрақтар|FAQ","Возможно, вы хотели спросить об этом":"Мүмкін, сіз осыны сұрағыңыз келген шығар|You may have been wondering",
+    "Первый шаг":"Алғашқы қадам|First step","Давайте разберёмся вместе":"Бірге анықтап көрейік|Let’s figure it out together","Позвоните нам — расскажем, с какого специалиста удобнее начать, и подберём удобное время.":"Бізге қоңырау шалыңыз — қай маманнан бастаған дұрыс екенін айтып, ыңғайлы уақытты таңдаймыз.|Call us and we will suggest where to start and find a convenient time.","Позвонить нам":"Бізге қоңырау шалу|Call us",
+    "Кому подойдёт":"Кімге сәйкес келеді|Who it is for","Как проходят занятия":"Сабақтар қалай өтеді|How sessions work","Что это даёт":"Бұл не береді|What it provides","Специалисты направления":"Осы бағыттың мамандары|Specialists in this direction",
+    "Ко всем направлениям":"Барлық бағыттарға|All directions","Ко всем специалистам":"Барлық мамандарға|All specialists","Опыт":"Тәжірибе|Experience","Образование":"Білімі|Education","Направления работы":"Жұмыс бағыттары|Areas of work","Записаться":"Жазылу|Book","Подробнее":"Толығырақ|Details","Назад":"Артқа|Back","Город":"Қала|City","Специалисты":"Мамандар|Specialists","Выберите город":"Қаланы таңдаңыз|Choose a city","Покажем только специалистов, которые работают в выбранном городе.":"Таңдалған қалада жұмыс істейтін мамандарды ғана көрсетеміз.|We will show only specialists who work in the selected city.","В выбранном городе пока нет специалистов этого направления.":"Таңдалған қалада бұл бағыт бойынша мамандар әзірге жоқ.|There are no specialists in this direction in the selected city yet.",
+    "Трудности с речью":"Сөйлеудегі қиындықтар|Speech difficulties","Ребёнку сложно выразить мысль, звуки даются тяжело, речь развивается медленнее ожидаемого.":"Балаға ойын жеткізу қиын, дыбыстарды айту ауыр, сөйлеуі күтілгеннен баяу дамиды.|Your child may find it difficult to express thoughts, produce sounds, or develop speech at the expected pace.",
+    "Проблемы с концентрацией":"Зейінді шоғырландыру қиын|Concentration difficulties","Трудно удерживать внимание на задаче дольше нескольких минут, легко отвлекается.":"Тапсырмаға бірнеше минуттан ұзақ зейін қою қиын, бала оңай алаңдайды.|It is difficult to stay focused on a task for more than a few minutes and distractions are frequent.",
+    "Сложности в обучении":"Оқудағы қиындықтар|Learning difficulties","Новый материал усваивается медленнее, чем хотелось бы, теряется интерес к занятиям.":"Жаңа материал баяуырақ меңгеріледі, сабаққа қызығушылық төмендеуі мүмкін.|New material may be learned more slowly than expected and interest in lessons may fade.",
+    "Сенсорная чувствительность":"Сенсорлық сезімталдық|Sensory sensitivity","Острая реакция на звуки, свет, текстуры или прикосновения, дискомфорт в обычных ситуациях.":"Дыбысқа, жарыққа, текстураға немесе жанасуға өткір реакция, күнделікті жағдайларда жайсыздық.|Strong reactions to sounds, light, textures or touch may cause discomfort in everyday situations.",
+    "Трудности с координацией":"Үйлестірудегі қиындықтар|Coordination difficulties","Неловкость в движениях, сложности с равновесием, крупной и мелкой моторикой.":"Қимылдары епсіз, тепе-теңдік, ірі және ұсақ моторикада қиындықтар болуы мүмкін.|Movement may be awkward, with difficulties in balance and gross or fine motor skills.",
+    "Сложности адаптации":"Бейімделу қиындықтары|Adaptation difficulties","Новые места, люди и правила даются тяжело, нужно время и поддержка, чтобы освоиться.":"Жаңа орындар, адамдар мен ережелерге бейімделу қиын, уақыт пен қолдау қажет.|New places, people and rules can be difficult and may require time and support.",
+    "Знакомство":"Танысу|Getting acquainted","Разговариваем с вами о ситуации, отвечаем на вопросы, снимаем напряжение перед первой встречей.":"Жағдайды бірге талқылап, сұрақтарға жауап береміз және алғашқы кездесуге дайындалуға көмектесеміз.|We discuss your situation, answer questions and help reduce tension before the first meeting.",
+    "Оценка навыков":"Дағдыларды бағалау|Skills assessment","Специалисты знакомятся с ребёнком и определяют его текущий уровень развития в нужных областях.":"Мамандар баламен танысып, қажетті салалардағы қазіргі даму деңгейін анықтайды.|Specialists meet the child and assess their current level of development in the relevant areas.",
+    "Индивидуальный план":"Жеке жоспар|Individual plan","Собираем команду специалистов и формируем понятный план занятий именно под вашего ребёнка.":"Мамандар тобын жинап, балаңызға арналған түсінікті сабақ жоспарын құрамыз.|We bring specialists together and create a clear plan tailored to your child.",
+    "Занятия":"Сабақтар|Sessions","Регулярные встречи в комфортном темпе — с гибкостью, если что-то нужно скорректировать.":"Ыңғайлы қарқынмен тұрақты кездесулер, қажет болса жоспарды өзгертуге болады.|Regular sessions at a comfortable pace, with flexibility when adjustments are needed.",
+    "Отслеживание прогресса":"Прогресті бақылау|Progress tracking","Делимся результатами и наблюдениями, чтобы вы всегда понимали, как продвигается ребёнок.":"Нәтижелер мен бақылауларды бөлісіп, балаңыздың ілгерілеуін түсінуге көмектесеміз.|We share results and observations so you can understand how your child is progressing.",
+    "Индивидуальный подход":"Жеке тәсіл|Individual approach","Каждый план занятий строится вокруг конкретного ребёнка, а не общего шаблона.":"Әр сабақ жоспары нақты балаға бейімделеді, жалпы шаблонға емес.|Every plan is built around the individual child rather than a generic template.",
+    "Командная работа специалистов":"Мамандардың командалық жұмысы|Teamwork between specialists","Тьютор, дефектолог и другие специалисты работают согласованно, а не по отдельности.":"Тьютор, дефектолог және басқа мамандар жеке-жеке емес, үйлесімді жұмыс істейді.|Tutors, special education specialists and other professionals coordinate their work.",
+    "Понятный план занятий":"Түсінікті сабақ жоспары|Clear session plan","Вы всегда знаете, что и зачем происходит на каждом этапе работы.":"Жұмыстың әр кезеңінде не және не үшін жасалатынын білесіз.|You always know what is happening and why at each stage.",
+    "Регулярная обратная связь":"Тұрақты кері байланыс|Regular feedback","Рассказываем о прогрессе честно и понятным языком, без сложных терминов.":"Прогресс туралы күрделі терминдерсіз, түсінікті әрі ашық тілде айтамыз.|We explain progress clearly and honestly, without unnecessary jargon.",
+    "Что сейчас беспокоит вас больше всего?":"Қазір сізді ең көп не алаңдатады?|What concerns you most right now?","Ребёнку трудно говорить или его сложно понять":"Балаға сөйлеу қиын немесе оны түсіну қиын|Your child has difficulty speaking or is hard to understand","Сложно удерживать внимание на задаче":"Тапсырмаға зейін қою қиын|It is difficult to stay focused on a task","Остро реагирует на звуки, свет, прикосновения":"Дыбысқа, жарыққа, жанасуға қатты реакция береді|Strong reactions to sounds, light or touch","Есть трудности с движением, координацией":"Қимылдау мен үйлестіруде қиындықтар бар|There are movement or coordination difficulties",
+    "Как ребёнок чувствует себя в новых ситуациях?":"Бала жаңа жағдайларда өзін қалай сезінеді?|How does your child feel in new situations?","Тяжело привыкает, тревожится, нужен рядом взрослый":"Бейімделуі қиын, мазасызданады, жанында ересек адам керек|Adapts slowly, feels anxious and needs an adult nearby","В целом спокоен, но быстро теряет интерес":"Жалпы сабырлы, бірақ қызығушылығын тез жоғалтады|Generally calm but quickly loses interest","Старается, но обучение даётся медленнее сверстников":"Тырысады, бірақ оқу құрдастарына қарағанда баяуырақ жүреді|Tries hard, but learning is slower than for peers","Обычно легко находит общий язык и адаптируется":"Әдетте адамдармен тез тіл табысып, оңай бейімделеді|Usually connects with others and adapts easily",
+    "Какая цель для вас сейчас на первом месте?":"Қазір сіз үшін қай мақсат бірінші орында?|What is your top priority right now?","Подготовиться к школе увереннее":"Мектепке сенімдірек дайындалу|Prepare for school with confidence","Наладить повседневные дела и учебные привычки":"Күнделікті істер мен оқу әдеттерін реттеу|Improve daily routines and study habits","Получить медицинскую оценку и понять причины":"Медициналық бағалау алып, себептерін түсіну|Get a medical assessment and understand the reasons","Пока просто разобраться, что происходит":"Әзірге не болып жатқанын түсініп алу|Simply understand what is happening",
+    "← Назад":"← Артқа|← Back","Вот с чего можно начать":"Міне, неден бастауға болады|Here is where you can start","Это ориентировочная подсказка на основе ваших ответов, а не диагноз и не медицинское заключение. Точный план мы составим вместе на очной консультации.":"Бұл жауаптарыңызға негізделген бағдар ғана, диагноз немесе медициналық қорытынды емес. Нақты жоспарды жеке кеңесте бірге құрамыз.|This is guidance based on your answers, not a diagnosis or medical opinion. We will create the exact plan together during an in-person consultation.","Пройти тест заново":"Тестті қайта өту|Retake the test",
+    "С чего начинается работа с центром?":"Орталықпен жұмыс неден басталады?|How does work with the center begin?","Со знакомства: мы обсуждаем вашу ситуацию, отвечаем на вопросы и предлагаем удобное время для первой встречи со специалистом.":"Танысудан басталады: жағдайыңызды талқылап, сұрақтарға жауап беріп, маманмен алғашқы кездесуге ыңғайлы уақыт ұсынамыз.|We start by getting acquainted, discussing your situation, answering questions and finding a convenient time for the first specialist meeting.",
+    "Нужен ли точный диагноз, чтобы обратиться?":"Жүгіну үшін нақты диагноз қажет пе?|Do you need a diagnosis to contact us?","Нет. Достаточно того, что вы замечаете у ребёнка — мы поможем разобраться в ситуации на консультации.":"Жоқ. Балаңыздан байқағандарыңыз жеткілікті — кеңес кезінде жағдайды түсінуге көмектесеміз.|No. What you notice in your child is enough for us to help you understand the situation during a consultation.",
+    "Как быстро будет заметен результат?":"Нәтиже қаншалықты тез байқалады?|How quickly will results become noticeable?","Это зависит от направления и ребёнка. Мы регулярно делимся наблюдениями, чтобы прогресс был виден и понятен вам на каждом этапе.":"Бұл бағыт пен балаға байланысты. Әр кезеңде прогресс түсінікті болуы үшін бақылауларымызбен бөлісеміз.|It depends on the direction and the child. We share observations regularly so progress is clear at every stage.",
+    "Можно ли работать сразу с несколькими специалистами?":"Бірден бірнеше маманмен жұмыс істеуге бола ма?|Can we work with several specialists at once?","Да, это обычная практика — специалисты работают в команде и согласовывают план между собой.":"Иә, бұл қалыпты тәжірибе — мамандар команда болып жұмыс істеп, жоспарды өзара үйлестіреді.|Yes. Specialists can work as a team and coordinate the plan with each other.",
+    "Что взять с собой на первую встречу?":"Алғашқы кездесуге не әкелу керек?|What should I bring to the first meeting?","Ничего специального не требуется. Если есть предыдущие заключения или наблюдения — можно принести, но это не обязательно.":"Арнайы ештеңе қажет емес. Бұрынғы қорытындылар немесе бақылаулар болса, әкелуге болады, бірақ міндетті емес.|Nothing special is required. Previous reports or observations can be useful, but they are not required.",
+    "Как часто нужно приходить на занятия?":"Сабақтарға қаншалықты жиі келу керек?|How often should we attend sessions?","Частоту мы определяем индивидуально вместе с вами, исходя из целей и темпа ребёнка.":"Жиілікті балаңыздың мақсаты мен қарқынына қарай сізбен бірге жеке анықтаймыз.|We determine the frequency together based on your child’s goals and pace.",
+    "Политика конфиденциальности":"Құпиялылық саясаты|Privacy Policy","Дата вступления в силу:":"Күшіне ену күні:|Effective date:","1. Общие положения":"1. Жалпы ережелер|1. General provisions","2. Какие данные мы собираем":"2. Қандай деректерді жинаймыз|2. What data we collect","3. Как мы используем данные":"3. Деректерді қалай пайдаланамыз|3. How we use data","4. Хранение и защита данных":"4. Деректерді сақтау және қорғау|4. Data storage and protection","5. Права пользователя":"5. Пайдаланушының құқықтары|5. User rights","6. Контакты":"6. Байланыстар|6. Contacts","7. Изменения политики":"7. Саясаттағы өзгерістер|7. Changes to the policy",
+    "Настоящая политика конфиденциальности определяет порядок обработки персональных данных пользователей сайта организацией":"Осы құпиялылық саясаты сайт пайдаланушыларының дербес деректерін ұйымның өңдеу тәртібін анықтайды.|This privacy policy defines how the organization processes users’ personal data.",
+    "Контактные данные, которые вы указываете при обращении (например, номер телефона)":"Жүгінген кезде көрсететін байланыс деректері (мысалы, телефон нөмірі)|Contact details you provide when contacting us (for example, a phone number)",
+    "Технические данные о посещении сайта (тип устройства, браузер, при использовании соответствующих сервисов аналитики)":"Сайтқа кіру туралы техникалық деректер (құрылғы түрі, браузер, тиісті талдау қызметтері пайдаланылса)|Technical data about site visits (device type, browser, when relevant analytics services are used)",
+    "Чтобы связаться с вами по вашему обращению":"Өтінішіңіз бойынша сізбен байланысу үшін|To contact you about your request","Чтобы улучшать работу сайта и качество услуг":"Сайт жұмысын және қызмет сапасын жақсарту үшін|To improve the site and service quality","Чтобы выполнять требования законодательства":"Заң талаптарын орындау үшін|To comply with legal requirements",
+    "Организация принимает разумные технические и организационные меры для защиты персональных данных от несанкционированного доступа, изменения, раскрытия или уничтожения.":"Ұйым дербес деректерді рұқсатсыз қол жеткізуден, өзгертуден, жария етуден немесе жоюдан қорғау үшін ақылға қонымды техникалық және ұйымдастырушылық шаралар қолданады.|The organization takes reasonable technical and organizational measures to protect personal data from unauthorized access, alteration, disclosure or destruction.",
+    "Вы вправе запросить информацию о том, какие данные о вас хранятся, попросить их исправить или удалить, обратившись по контактам ниже.":"Сіз өзіңіз туралы қандай деректер сақталатыны туралы ақпарат сұрауға, оларды түзетуді немесе жоюды төмендегі байланыстар арқылы сұрауға құқылысыз.|You may request information about the data stored about you and ask for it to be corrected or deleted using the contacts below.",
+    "По вопросам обработки персональных данных вы можете связаться с нами:":"Дербес деректерді өңдеу мәселелері бойынша бізбен мына байланыс арқылы хабарласа аласыз:|For questions about personal data processing, you can contact us:",
+    "© 2026 «Сайт». Все права защищены.":"© 2026 «Сайт». Барлық құқықтар қорғалған.|© 2026 “Site”. All rights reserved.",
+    "пн–сб, 9:00–19:00":"дс–сб, 9:00–19:00|Mon–Sat, 9:00–19:00",
+    "Навигация":"Навигация|Navigation","Контакты":"Байланыс|Contacts","О нас":"Біз туралы|About us","Открыть меню":"Мәзірді ашу|Open menu","Закрыть меню":"Мәзірді жабу|Close menu"
+  };
+
+  const extra = {
+    "Индивидуальное сопровождение ребёнка в обучении и повседневной деятельности.":"Баланы оқу мен күнделікті әрекеттерде жеке сүйемелдеу.|Individual support for a child in learning and everyday activities.",
+    "Тьютор — это надёжный проводник рядом с ребёнком: помогает справляться с задачами, удерживать внимание и постепенно становиться самостоятельнее.":"Тьютор — баланың жанындағы сенімді қолдау көрсетуші: тапсырмаларды орындауға, зейінді ұстауға және біртіндеп дербес болуға көмектеседі.|A tutor is a reliable guide beside the child, helping with tasks, attention and gradual independence.",
+    "Речь развивается медленнее сверстников":"Сөйлеу құрдастарына қарағанда баяуырақ дамиды|Speech develops more slowly than for peers","Трудности с чтением, письмом или счётом":"Оқу, жазу немесе санауда қиындықтар|Difficulties with reading, writing or counting","Нужна системная работа над мышлением и памятью":"Ойлау мен есте сақтауға жүйелі жұмыс қажет|Systematic work on thinking and memory is needed",
+    "Нейропсихологическая диагностика":"Нейропсихологиялық диагностика|Neuropsychological assessment","Индивидуальная программа упражнений":"Жеке жаттығу бағдарламасы|Individual exercise program","Регулярный мониторинг динамики":"Динамиканы тұрақты бақылау|Regular progress monitoring",
+    "Развитие речи, мышления, внимания, памяти и учебных навыков.":"Сөйлеуді, ойлауды, зейінді, есте сақтауды және оқу дағдыларын дамыту.|Development of speech, thinking, attention, memory and learning skills.",
+    "Работа с вниманием, памятью, мышлением, самоконтролем и другими когнитивными функциями.":"Зейін, есте сақтау, ойлау, өзін-өзі бақылау және басқа когнитивтік функциялармен жұмыс.|Work with attention, memory, thinking, self-control and other cognitive functions.",
+    "Развитие двигательных навыков, координации, физической активности и моторики.":"Қимыл дағдыларын, үйлесімділікті, дене белсенділігін және моториканы дамыту.|Development of movement skills, coordination, physical activity and motor skills.",
+    "Медицинская оценка нервной системы ребёнка и рекомендации по дальнейшей помощи.":"Баланың жүйке жүйесін медициналық бағалау және әрі қарайғы көмек бойынша ұсынымдар.|Medical assessment of the child’s nervous system and recommendations for further support.",
+    "Развитие навыков чтения, письма, счёта, внимания, памяти, усидчивости и способности работать по инструкции.":"Оқу, жазу, санау, зейін, есте сақтау, табандылық және нұсқаулықпен жұмыс істеу дағдыларын дамыту.|Development of reading, writing, counting, attention, memory, persistence and ability to follow instructions.",
+    "Комплексная подготовка помогает ребёнку войти в школьную жизнь спокойно и уверенно — с нужными навыками и без лишнего стресса.":"Кешенді дайындық балаға қажетті дағдылармен және артық күйзеліссіз мектеп өміріне сенімді кіруге көмектеседі.|Comprehensive preparation helps a child enter school calmly and confidently, with the needed skills and less unnecessary stress."
+  };
+  Object.assign(RU, extra);
+
+  const dict = {ru:{},kz:{},en:{}};
+  Object.entries(RU).forEach(([source,val])=>{
+    const [kz,en]=val.split('|'); dict.ru[source]=source; dict.kz[source]=kz||source; dict.en[source]=en||source;
+  });
+
+  const hashKey = s => {
+    let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);} return 'text_'+(h>>>0).toString(36);
+  };
+  const norm = s => (s||'').replace(/\s+/g,' ').trim();
+  const skipTags = new Set(['SCRIPT','STYLE','NOSCRIPT','SVG','PATH','CODE']);
+
+  function scan(root=document.body){
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node=>{
+      const parent=node.parentElement; if(!parent||skipTags.has(parent.tagName)||parent.closest('[data-no-i18n]')) return;
+      const source=norm(node.nodeValue); if(!source) return;
+      /* Do not translate phone numbers, placeholders, names, or already generated metadata. */
+      if(/^\+?[0-9 ()–—-]+$/.test(source)) return;
+      if(source.length<2) return;
+      const key=hashKey(source);
+      const span=document.createElement('span');
+      span.className='i18n-text'; span.dataset.i18nKey=key; span.dataset.i18nSource=source;
+      const lead=(node.nodeValue.match(/^\s*/)||[''])[0], tail=(node.nodeValue.match(/\s*$/)||[''])[0];
+      span.textContent=source;
+      const parentNode=node.parentNode;
+      const leadNode=document.createTextNode(lead);
+      parentNode.replaceChild(leadNode,node);
+      if(!lead) leadNode.remove();
+      if(leadNode.parentNode) leadNode.after(span); else parentNode.prepend(span);
+      if(tail){span.after(document.createTextNode(tail));}
+    });
+    root.querySelectorAll('.i18n-text').forEach(el=>el.dataset.i18nKey ||= hashKey(el.dataset.i18nSource));
+  }
+
+  function apply(lang){
+    currentLang=lang; localStorage.setItem('erekshebala_lang',lang); document.documentElement.lang=lang==='kz'?'kk':lang;
+    scan(document.body);
+    document.querySelectorAll('.i18n-text').forEach(el=>{
+      const src=el.dataset.i18nSource; const val=dict[lang]?.[src];
+      if(val) el.textContent=val;
+    });
+    document.querySelectorAll('[data-i18n-key]').forEach(el=>{
+      if(el.dataset.i18nSource && dict[lang]?.[el.dataset.i18nSource]) el.textContent=dict[lang][el.dataset.i18nSource];
+    });
+    if(typeof updateCityUI==='function') updateCityUI();
+  }
+
+  const originalSetLanguage=window.setLanguage;
+  window.setLanguage=function(lang){
+    if(!I18N[lang]) return;
+    currentLang=lang; localStorage.setItem('erekshebala_lang',lang);
+    render();
+    requestAnimationFrame(()=>apply(lang));
+  };
+
+  const originalRender=window.render;
+  if(typeof originalRender==='function'){
+    window.render=function(){ originalRender(); requestAnimationFrame(()=>apply(currentLang)); };
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(()=>apply(currentLang),50);
+    setTimeout(()=>apply(currentLang),300);
+  });
+  const appRoot=document.getElementById('app');
+  if(appRoot){
+    let mt;
+    new MutationObserver(()=>{
+      clearTimeout(mt);
+      mt=setTimeout(()=>apply(currentLang),20);
+    }).observe(appRoot,{childList:true,subtree:true});
+  }
+  setTimeout(()=>apply(currentLang),100);
+})();
+</script>
+
 </body>
 </html>
